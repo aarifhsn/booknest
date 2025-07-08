@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type Task } from '@/types';
-import { Head, router, Link } from '@inertiajs/vue3';
+import { type BreadcrumbItem, type Task } from '@/types';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
-import {Button, buttonVariants} from "@/components/ui/button";
 
 interface Props {
     tasks: Task[];
@@ -20,15 +20,18 @@ const deleteTask = (id: number) => {
         });
     }
 };
+
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Tasks', href: '/tasks' },
+];
 </script>
 
 <template>
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
         <Head title="Index" />
         <div class="mt-4">
-            <Link :class="buttonVariants({ variant: 'outline' })" href="route('tasks.create')">
-               Add Task
-            </Link>
+            <Link :class="buttonVariants({ variant: 'outline' })" :href="route('tasks.create')"> Add Task </Link>
         </div>
         <Table class="mt-4">
             <TableHeader>
@@ -44,7 +47,8 @@ const deleteTask = (id: number) => {
                     <TableCell :class="task.is_completed ? 'text-green-500' : 'text-red-500'">{{
                         task.is_completed ? 'Completed' : 'In Progress'
                     }}</TableCell>
-                    <TableCell class="text-right">
+                    <TableCell class="flex gap-x-2 text-right">
+                        <Link :class="buttonVariants({ variant: 'default' })" :href="route('tasks.edit', { id: task.id })">Edit</Link>
                         <Button class="mr-2" @click="deleteTask(task.id)" variant="destructive">Delete</Button>
                     </TableCell>
                 </TableRow>
