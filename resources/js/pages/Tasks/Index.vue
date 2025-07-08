@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import Pagination from '@/components/Pagination.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem, type Task } from '@/types';
+import { type BreadcrumbItem, type PaginatedResponse, type Task } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 
 interface Props {
-    tasks: Task[];
+    tasks: PaginatedResponse<Task>;
 }
 
 defineProps<Props>();
@@ -42,7 +43,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </TableRow>
             </TableHeader>
             <TableBody>
-                <TableRow v-for="task in tasks" :key="task.id">
+                <TableRow v-for="task in tasks.data" :key="task.id">
                     <TableCell>{{ task.name }}</TableCell>
                     <TableCell :class="task.is_completed ? 'text-green-500' : 'text-red-500'">{{
                         task.is_completed ? 'Completed' : 'In Progress'
@@ -54,5 +55,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </TableRow>
             </TableBody>
         </Table>
+        <Pagination :resource="tasks" />
     </AppLayout>
 </template>
