@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Pagination, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import type { PaginatedResponse } from '@/types';
 import { router } from '@inertiajs/vue3';
 
@@ -8,21 +9,16 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="mt-4 flex justify-center space-x-2">
-        <button
-            :disabled="!props.resource.prev_page_url"
-            @click="router.visit(props.resource.prev_page_url!)"
-            class="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-            Previous
-        </button>
+    <Pagination :items-per-page="10" :total="100" :sibling-count="1" show-edges :default-page="2" class="mx-auto">
+        <div class="flex items-center gap-1">
+            <div v-if="props.resource.last_page === 1">
+                <div class="mt-4 text-center text-gray-500">No more items to show.</div>
+            </div>
+            <div class="flex items-center gap-1" v-if="props.resource.last_page !== 1">
+                <PaginationPrevious v-on:click="() => router.visit(props.resource?.prev_page_url)" v-if="props.resource.prev_page_url" />
 
-        <button
-            :disabled="!props.resource.next_page_url"
-            @click="router.visit(props.resource.next_page_url!)"
-            class="rounded bg-gray-200 px-4 py-2 text-sm text-gray-800 hover:bg-gray-300 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-            Next
-        </button>
-    </div>
+                <PaginationNext v-on:click="() => router.visit(props.resource?.next_page_url)" v-if="props.resource.next_page_url" />
+            </div>
+        </div>
+    </Pagination>
 </template>
