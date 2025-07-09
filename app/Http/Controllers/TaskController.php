@@ -14,10 +14,20 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('Tasks/Index', [
-            'tasks' => Task::with('media', 'taskCategories')->paginate(10)
+            'tasks' => Task::query()
+                ->with(['media', 'taskCategories'])
+                ->when($request->has('categories'), function ($query) use ($request) {
+                    $query->whereHas('taskCategories', function ($query) use ($request) {
+                        $query->whereIn('id', $request->query('categories'));
+                    });
+                })
+                ->paginate(10)
+                ->withQueryString(),
+            'categories' => TaskCategory::whereHas('tasks')->withCount('tasks')->get(),
+            'selectedCategories' => $request->query('categories'),
         ]);
     }
 

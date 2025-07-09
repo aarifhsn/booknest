@@ -3,16 +3,19 @@ import Pagination from '@/components/Pagination.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem, type PaginatedResponse, type Task } from '@/types';
+import { TaskCategory, type BreadcrumbItem, type PaginatedResponse, type Task } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { DateFormatter } from '@internationalized/date';
 import { toast } from 'vue-sonner';
 
 interface Props {
     tasks: PaginatedResponse<Task>;
+    categories: TaskCategory[];
+    selectedCategories: [];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+const selectedCategories = props.selectedCategories ? props.selectedCategories : [];
 
 const deleteTask = (id: number) => {
     if (confirm('Are you sure you want to delete this task?')) {
@@ -31,6 +34,11 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Tasks', href: '/tasks' },
 ];
+
+const selectCategory = (id: string) => {
+    const selected = selectedCategories.includes(id) ? selectedCategories.filter((category) => category !== id) : [...selectedCategories, id];
+    router.visit('/tasks', { data: { categories: selected } });
+};
 </script>
 
 <template>
@@ -40,6 +48,18 @@ const breadcrumbs: BreadcrumbItem[] = [
             <Link :class="buttonVariants({ variant: 'outline' })" :href="route('tasks.create')" class="mr-2"> Add Task </Link>
             <Link :class="buttonVariants({ variant: 'outline' })" href="/task-categories"> Manage Task Categories</Link>
         </div>
+
+        <div class="mt-4 flex flex-row justify-center gap-x-2">
+            <Button
+                v-for="category in categories"
+                :key="category.id"
+                @click="selectCategory(category.id.toString())"
+                :class="buttonVariants({ variant: selectedCategories.includes(category.id.toString()) ? 'default' : 'secondary' })"
+            >
+                {{ category.name }} ({{ category.tasks_count }})
+            </Button>
+        </div>
+
         <Table class="mt-4">
             <TableHeader>
                 <TableRow>
