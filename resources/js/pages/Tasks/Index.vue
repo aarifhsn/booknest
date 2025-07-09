@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type PaginatedResponse, type Task } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { DateFormatter } from '@internationalized/date';
 import { toast } from 'vue-sonner';
 
 interface Props {
@@ -22,6 +23,10 @@ const deleteTask = (id: number) => {
     }
 };
 
+const df = new DateFormatter('en-US', {
+    dateStyle: 'long',
+});
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Tasks', href: '/tasks' },
@@ -38,23 +43,41 @@ const breadcrumbs: BreadcrumbItem[] = [
             <TableHeader>
                 <TableRow>
                     <TableHead>Task</TableHead>
+                    <TableHead>File</TableHead>
                     <TableHead class="w-[100px]">Status</TableHead>
+                    <TableHead class="w-[100px]">Due Date</TableHead>
                     <TableHead class="w-[100px] text-right">Actions</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 <TableRow v-for="task in tasks.data" :key="task.id">
                     <TableCell>{{ task.name }}</TableCell>
+                    <TableCell>
+                        <a v-if="task.mediaFile" :href="task.mediaFile.original_url" target="_blank">
+                            <img :src="task.mediaFile.original_url" class="h-8 w-8" />
+                        </a>
+                    </TableCell>
                     <TableCell :class="task.is_completed ? 'text-green-500' : 'text-red-500'">{{
                         task.is_completed ? 'Completed' : 'In Progress'
                     }}</TableCell>
+                    <TableCell>{{ task.due_date ? df.format(new Date(task.due_date)) : '-' }}</TableCell>
                     <TableCell class="flex gap-x-2 text-right">
                         <Link :class="buttonVariants({ variant: 'default' })" :href="route('tasks.edit', { id: task.id })">Edit</Link>
                         <Button class="mr-2" @click="deleteTask(task.id)" variant="destructive">Delete</Button>
                     </TableCell>
+
+                    <TableCell>
+                        <div class="text-xs text-red-500">
+                            {{ task.mediaFile?.original_url }}
+                        </div>
+                        <a v-if="task.mediaFile" :href="task.mediaFile.original_url" target="_blank">
+                            <img :src="task.mediaFile.original_url" class="h-8 w-8" />
+                        </a>
+                    </TableCell>
                 </TableRow>
             </TableBody>
         </Table>
+
         <Pagination :resource="tasks" />
     </AppLayout>
 </template>
