@@ -37,16 +37,18 @@ const breadcrumbs: BreadcrumbItem[] = [
     <AppLayout :breadcrumbs="breadcrumbs">
         <Head title="Index" />
         <div class="mt-4">
-            <Link :class="buttonVariants({ variant: 'outline' })" :href="route('tasks.create')"> Add Task </Link>
+            <Link :class="buttonVariants({ variant: 'outline' })" :href="route('tasks.create')" class="mr-2"> Add Task </Link>
+            <Link :class="buttonVariants({ variant: 'outline' })" href="/task-categories"> Manage Task Categories</Link>
         </div>
         <Table class="mt-4">
             <TableHeader>
                 <TableRow>
                     <TableHead>Task</TableHead>
                     <TableHead>File</TableHead>
-                    <TableHead class="w-[100px]">Status</TableHead>
-                    <TableHead class="w-[100px]">Due Date</TableHead>
-                    <TableHead class="w-[100px] text-right">Actions</TableHead>
+                    <TableHead class="w-[200px]">Categories</TableHead>
+                    <TableHead class="w-[200px]">Status</TableHead>
+                    <TableHead class="w-[200px]">Due Date</TableHead>
+                    <TableHead class="w-[200px] text-right">Actions</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -57,6 +59,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <img :src="task.mediaFile.original_url" class="h-8 w-8" />
                         </a>
                     </TableCell>
+                    <TableCell>
+                        <span
+                            v-for="category in task.task_categories"
+                            :key="category.id"
+                            class="mr-2 rounded-full bg-gray-200 px-2 py-1 text-gray-800"
+                        >
+                            {{ category.name }}
+                        </span>
+                    </TableCell>
                     <TableCell :class="task.is_completed ? 'text-green-500' : 'text-red-500'">{{
                         task.is_completed ? 'Completed' : 'In Progress'
                     }}</TableCell>
@@ -64,15 +75,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <TableCell class="flex gap-x-2 text-right">
                         <Link :class="buttonVariants({ variant: 'default' })" :href="route('tasks.edit', { id: task.id })">Edit</Link>
                         <Button class="mr-2" @click="deleteTask(task.id)" variant="destructive">Delete</Button>
-                    </TableCell>
-
-                    <TableCell>
-                        <div class="text-xs text-red-500">
-                            {{ task.mediaFile?.original_url }}
-                        </div>
-                        <a v-if="task.mediaFile" :href="task.mediaFile.original_url" target="_blank">
-                            <img :src="task.mediaFile.original_url" class="h-8 w-8" />
-                        </a>
                     </TableCell>
                 </TableRow>
             </TableBody>

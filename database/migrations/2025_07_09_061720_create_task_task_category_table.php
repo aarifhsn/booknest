@@ -12,7 +12,8 @@ return new class extends Migration {
     {
         Schema::create('task_task_category', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->foreignId('task_id')->constrained();
+            $table->foreignId('task_category_id')->constrained();
             $table->timestamps();
         });
     }

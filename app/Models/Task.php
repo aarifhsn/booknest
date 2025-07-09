@@ -44,4 +44,11 @@ class Task extends Model implements HasMedia
 
         return null;
     }
+
+    public function taskCategories()
+    {
+        return $this->belongsToMany(TaskCategory::class);
+    }
+
+
 }

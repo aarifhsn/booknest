@@ -26,6 +26,8 @@ class UpdateTaskRequest extends FormRequest
             'is_completed' => ['boolean'],
             'due_date' => ['nullable', 'date'],
             'media' => ['nullable', 'file', 'max:2048'],
+            'categories' => ['nullable', 'array'],
+            'categories.*' => ['exists:task_categories,id'],
         ];
     }
 }

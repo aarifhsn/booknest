@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
+use App\Models\TaskCategory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,7 +17,7 @@ class TaskController extends Controller
     public function index()
     {
         return Inertia::render('Tasks/Index', [
-            'tasks' => Task::with('media')->paginate(5),
+            'tasks' => Task::with('media', 'taskCategories')->paginate(10)
         ]);
     }
 
@@ -25,7 +26,9 @@ class TaskController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Tasks/Create');
+        return Inertia::render('Tasks/Create', [
+            'categories' => TaskCategory::all(),
+        ]);
     }
 
     /**
@@ -33,10 +36,14 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request)
     {
-        $task = Task::create($request->validated() + ['is_completed' => false]);
+        $task = Task::create($request->safe(['name', 'due_date']) + ['is_completed' => false]);
 
         if ($request->hasFile('media')) {
             $task->addMedia($request->file('media'))->toMediaCollection();
+        }
+
+        if ($request->has('categories')) {
+            $task->taskCategories()->sync($request->validated('categories'));
         }
 
         return redirect()->route('tasks.index');
@@ -55,11 +62,12 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        $task->load(['media']);
+        $task->load(['media', 'taskCategories']);
         $task->append('mediaFile');
 
         return Inertia::render('Tasks/Edit', [
-            'task' => $task
+            'task' => $task,
+            'categories' => TaskCategory::all(),
         ]);
     }
 
@@ -74,6 +82,8 @@ class TaskController extends Controller
             $task->clearMediaCollection();
             $task->addMedia($request->file('media'))->toMediaCollection();
         }
+
+        $task->taskCategories()->sync($request->validated('categories', []));
 
         return redirect()->route('tasks.index');
     }

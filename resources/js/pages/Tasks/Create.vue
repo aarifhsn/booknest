@@ -5,6 +5,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
@@ -17,6 +18,7 @@ const form = useForm({
     name: '',
     due_date: null,
     media: '',
+    categories: [],
 });
 
 const fileSelected = (event: Event) => {
@@ -29,6 +31,14 @@ const fileSelected = (event: Event) => {
 
     form.media = file;
 };
+
+interface Props {
+    categories: TaskCategory[];
+}
+
+const props = defineProps<Props>();
+
+const categories = props.categories;
 
 const isPopoverOpen = ref(false);
 
@@ -86,7 +96,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <InputError :message="form.errors.due_date" />
 
-                    <div class="grid gap-2">
+                    <div class="mr-2 grid">
                         <Label htmlFor="name">Media</Label>
 
                         <Input type="file" id="name" v-on:change="fileSelected($event)" class="mt-1 block w-full" />
@@ -94,6 +104,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <progress v-if="form.progress" :value="form.progress.percentage" max="100">{form.progress.percentage}%</progress>
 
                         <InputError :message="form.errors.media" />
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label htmlFor="categories">Categories</Label>
+
+                        <ToggleGroup class="flex flex-wrap gap-4" type="multiple" variant="outline" size="lg" v-model="form.categories">
+                            <ToggleGroupItem v-for="category in categories" :key="category.id" :value="category.id">
+                                {{ category.name }}
+                            </ToggleGroupItem>
+                        </ToggleGroup>
+
+                        <InputError :message="form.errors.categories" />
                     </div>
 
                     <div class="flex items-center gap-4">

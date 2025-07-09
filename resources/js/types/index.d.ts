@@ -25,6 +25,15 @@ export interface Task {
     created_at: string;
     updated_at: string;
     mediaFile?: MediaFile;
+    task_categories: TaskCategory[];
+}
+
+export interface TaskCategory {
+    id: number;
+    name: string;
+    tasks: Task[];
+    created_at: string;
+    updated_at: string;
 }
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
@@ -47,7 +56,7 @@ export interface User {
 
 export type BreadcrumbItemType = BreadcrumbItem;
 
-export interface PaginatedResponse<T = Task | null> {
+export interface PaginatedResponse<T = Task | TaskCategory | null> {
     current_page: number;
     data: T[];
     first_page_url: string;

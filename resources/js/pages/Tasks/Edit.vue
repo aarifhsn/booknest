@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Switch from '@/components/ui/switch/Switch.vue';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem, type Task } from '@/types';
+import { TaskCategory, type BreadcrumbItem, type Task } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { DateFormatter, fromDate, getLocalTimeZone } from '@internationalized/date';
 import { CalendarIcon } from 'lucide-vue-next';
@@ -16,6 +17,7 @@ import { ref } from 'vue';
 
 interface Props {
     task: Task;
+    categories: TaskCategory[];
 }
 
 const isPopoverOpen = ref(false);
@@ -29,6 +31,7 @@ const form = useForm({
     is_completed: task.is_completed,
     due_date: task.due_date ? fromDate(new Date(task.due_date), getLocalTimeZone()) : null,
     media: '',
+    categories: task.task_categories.map((category) => category.id),
 });
 
 const df = new DateFormatter('en-US', {
@@ -120,6 +123,18 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <InputError :message="form.errors.media" />
 
                     <img v-if="task.mediaFile" :src="task.mediaFile.original_url" class="mx-auto mt-2 h-32 w-32 rounded-lg" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label htmlFor="categories">Categories</Label>
+
+                    <ToggleGroup type="multiple" variant="outline" size="lg" v-model="form.categories">
+                        <ToggleGroupItem v-for="category in categories" :key="category.id" :value="category.id">
+                            {{ category.name }}
+                        </ToggleGroupItem>
+                    </ToggleGroup>
+
+                    <InputError :message="form.errors.categories" />
                 </div>
 
                 <div class="flex items-center gap-4">
